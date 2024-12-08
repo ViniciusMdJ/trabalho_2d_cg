@@ -16,9 +16,9 @@ void Arena::addObstacles(Rectangle rect){
     obstacles.push_back(rect);
 }
 
-void Arena::Desenha(){
-    backgroud->Desenha();
+void Arena::Draw(){
+    backgroud->Draw();
     for(auto i : obstacles){
-        i.Desenha();
+        i.Draw();
     }
 }

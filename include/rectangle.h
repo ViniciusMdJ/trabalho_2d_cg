@@ -27,7 +27,7 @@ public:
         GLfloat B
     );
 
-    void Desenha();
+    void Draw();
 };
 
 #endif//RECTANGLE_H

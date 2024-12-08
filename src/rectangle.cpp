@@ -2,7 +2,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-void Rectangle::Desenha(){
+void Rectangle::Draw(){
     glColor3f(R, G, B);
 
     glPushMatrix();

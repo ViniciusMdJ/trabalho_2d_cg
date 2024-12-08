@@ -14,7 +14,7 @@ class Arena{
 public:
     Arena(GLfloat width, GLfloat height, GLfloat x, GLfloat y);
     void addObstacles(Rectangle rect);
-    void Desenha();
+    void Draw();
 };
 
 #endif//ARENA_H
