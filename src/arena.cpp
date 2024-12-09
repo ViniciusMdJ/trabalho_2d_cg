@@ -7,9 +7,9 @@
 #include "../include/arena.h"
 
 Arena::Arena(GLfloat width, GLfloat height, GLfloat x, GLfloat y){
-    std::cout << width << " " << height << " " << x << " " << y << std::endl;
+    // std::cout << width << " " << height << " " << x << " " << y << std::endl;
 
-    backgroud = new Rectangle(width, height, x, y, 0, 0.0, 0.0, 1.0);
+    backgroud = new Rectangle(width, height, x, y, 0.0, 0.0, 0.0, 1.0);
 }
 
 void Arena::addObstacles(Rectangle rect){
