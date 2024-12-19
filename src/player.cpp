@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "../include/player.h"
+#include "../include/vector.h"
 
 #define BODY_WIDTH 0.04
 
@@ -124,4 +125,36 @@ Player::Player(GLfloat x, GLfloat y, GLfloat z, GLfloat height){
     // std::cout << "bodyHeight " << bodyHeight << std::endl;
     // std::cout << "headRadius " << headRadius << std::endl;
     // std::cout << bodyHeight << bodyHeight << std::endl;
+}
+
+void Player::Move(Vector &direction){
+    this->x += direction.getComponent(0);
+    this->y += direction.getComponent(1);
+    this->z += direction.getComponent(2);
+}
+
+Rectangle Player::getBoundingBox(){
+    return Rectangle(
+        bodyWidth,
+        height,
+        x - bodyWidth/2,
+        y - height/2,
+        z,
+        1.0,
+        1.0,
+        1.0
+    );
+}
+
+void Player::Jump(){
+    // if(!isJumping){
+    //     isJumping = true;
+    //     jumpStartTime = time(NULL);
+    // }
+    // else{
+    //     time_t currentTime = time(NULL);
+    //     if(currentTime - jumpStartTime > 1){
+    //         isJumping = false;
+    //     }
+    // }
 }

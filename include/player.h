@@ -4,6 +4,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <bits/stdc++.h>
+#include "../include/vector.h"
+#include "../include/rectangle.h"
 
 class Player{
     GLfloat x;
@@ -21,7 +23,10 @@ class Player{
     GLfloat leftThighAngle;    
     GLfloat rightThighAngle;    
     GLfloat leftShinAngle;    
-    GLfloat rightShinAngle;    
+    GLfloat rightShinAngle;
+
+    bool isJumping;
+    time_t jumpStartTime;
 
     void DrawRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B);
     void DrawCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B);
@@ -35,6 +40,9 @@ public:
     Player(GLfloat x, GLfloat y, GLfloat z, GLfloat height);
     void Draw();
     void getCordinates(GLfloat &x, GLfloat &y);
+    void Move(Vector &direction);
+    Rectangle getBoundingBox();
+    void Jump();
 };
 
 #endif//PLAYER_H
