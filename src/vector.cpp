@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include "../include/Vector.h"
+#include "../include/vector.h"
 
 Vector::Vector(double x, double y, double z){
     components[0] = x;
