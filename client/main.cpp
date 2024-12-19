@@ -12,6 +12,9 @@
 #include "../include/arena.h"
 #include "../include/arenaParser.h"
 #include "../include/player.h"
+#include "../include/vector.h"
+
+#define INC_MOVE 0.0005
 
 using namespace std;
 
@@ -49,6 +52,18 @@ void ResetKeyStatus()
         keyStatus[i] = 0; 
 }
 
+void keyPress(unsigned char key, int x, int y)
+{
+    keyStatus[key] = 1;
+    glutPostRedisplay();
+}
+
+void keyup(unsigned char key, int x, int y)
+{
+    keyStatus[(int)(key)] = 0;
+    glutPostRedisplay();
+}
+
 void init(void)
 {
     ResetKeyStatus();
@@ -71,10 +86,64 @@ void init(void)
 }
 
 void mouse(int button, int state, int x, int y){
-   printf("button %d - state %d - x %d - y %d\n", button, state, x, y);
+    static GLdouble previousTime = glutGet(GLUT_ELAPSED_TIME);
+    GLdouble currentTime, timeDiference;
+    //Pega o tempo que passou do inicio da aplicacao
+    currentTime = glutGet(GLUT_ELAPSED_TIME);
+    // Calcula o tempo decorrido desde de a ultima frame.
+    timeDiference = currentTime - previousTime;
+    //Atualiza o tempo do ultimo frame ocorrido
+    previousTime = currentTime;
+
+    printf("button %d - state %d - x %d - y %d\n", button, state, x, y);
+
+    x = x - Width/2;
+    y = Height/2 - y;
+
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
+        //atirar
+    }
+
+    if(button == GLUT_RIGHT_BUTTON){
+        if(state == GLUT_DOWN){
+            //pular
+        }
+        else if(state == GLUT_UP){
+            //parar de pular
+        }
+    }
+}
+
+void motionMouse(int x, int y){
+    // ajustar o braço do player
+    x = x - Width/2;
+    y = Height/2 - y;
 }
 
 void idle(void){
+    static GLdouble previousTime = glutGet(GLUT_ELAPSED_TIME);
+    GLdouble currentTime, timeDiference;
+    //Pega o tempo que passou do inicio da aplicacao
+    currentTime = glutGet(GLUT_ELAPSED_TIME);
+    // Calcula o tempo decorrido desde de a ultima frame.
+    timeDiference = currentTime - previousTime;
+    //Atualiza o tempo do ultimo frame ocorrido
+    previousTime = currentTime;
+
+    Vector direction;
+
+    //Treat keyPress
+    if(keyStatus[(int)('a')]){
+        direction.setComponent(0, direction.getComponent(0) - 1);
+    }
+    if(keyStatus[(int)('d')]){
+        direction.setComponent(0, direction.getComponent(0) + 1);
+    }
+
+
+    direction = direction.normalize() * (INC_MOVE * timeDiference);
+    player->Move(direction);
+
     glutPostRedisplay();
 }
 
@@ -94,10 +163,12 @@ int main(int argc, char *argv[])
  
     // Define callbacks.
     glutDisplayFunc(renderScene);
-    // glutKeyboardFunc(keyPress);
+    glutKeyboardFunc(keyPress);
+    glutKeyboardUpFunc(keyup);
     glutIdleFunc(idle);
     glutMouseFunc(mouse);
-    // glutKeyboardUpFunc(keyup);
+    glutMotionFunc(motionMouse);
+    glutPassiveMotionFunc(motionMouse);
     
     init();
  
