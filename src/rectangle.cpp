@@ -27,3 +27,10 @@ Rectangle::Rectangle(GLfloat width, GLfloat height, GLfloat x, GLfloat y, GLfloa
     this->G = G;
     this->B = B;
 }
+
+bool Rectangle::Collides(Rectangle &rect){
+    return (x < rect.x + rect.width &&
+            x + width > rect.x &&
+            y > rect.y - rect.height &&
+            y - height < rect.y);
+}

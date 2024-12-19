@@ -28,6 +28,8 @@ public:
     );
 
     void Draw();
+    bool Collides(Rectangle &rect);
+    
 };
 
 #endif//RECTANGLE_H
