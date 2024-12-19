@@ -142,7 +142,8 @@ void idle(void){
 
 
     direction = direction.normalize() * (INC_MOVE * timeDiference);
-    player->Move(direction, currentTime);
+    player->Move(direction);
+    player->UpdateJump(currentTime);
 
     glutPostRedisplay();
 }
