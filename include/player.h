@@ -27,6 +27,7 @@ class Player{
 
     bool isJumping;
     time_t jumpStartTime;
+    time_t lastJumpUpdate;
 
     void DrawRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B);
     void DrawCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B);
@@ -42,7 +43,8 @@ public:
     void getCordinates(GLfloat &x, GLfloat &y);
     void Move(Vector &direction);
     Rectangle getBoundingBox();
-    void Jump();
+    void Jump(bool jump, GLdouble time);
+    void UpdateJump(GLdouble time);
 };
 
 #endif//PLAYER_H

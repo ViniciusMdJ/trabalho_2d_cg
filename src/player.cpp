@@ -5,8 +5,10 @@
 
 #include "../include/player.h"
 #include "../include/vector.h"
+#include "../include/utils.h"
 
 #define BODY_WIDTH 0.04
+#define JUMP_TOTAL_TIME 2000
 
 void Player::DrawRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
 {
@@ -133,6 +135,15 @@ void Player::Move(Vector &direction){
     this->z += direction.getComponent(2);
 }
 
+void Player::UpdateJump(GLdouble time){
+    if(time > jumpStartTime + JUMP_TOTAL_TIME){
+        isJumping = false;
+        return;
+    }
+    if(!isJumping) return;
+
+}
+
 Rectangle Player::getBoundingBox(){
     return Rectangle(
         bodyWidth,
@@ -146,15 +157,11 @@ Rectangle Player::getBoundingBox(){
     );
 }
 
-void Player::Jump(){
-    // if(!isJumping){
-    //     isJumping = true;
-    //     jumpStartTime = time(NULL);
-    // }
-    // else{
-    //     time_t currentTime = time(NULL);
-    //     if(currentTime - jumpStartTime > 1){
-    //         isJumping = false;
-    //     }
-    // }
+void Player::Jump(bool jump, GLdouble time){
+    if(jump && !isJumping){
+        jumpStartTime = time;
+        lastJumpUpdate = time;
+    }
+    isJumping = jump;
+    std::cout << "pulo " << jump << " " << time << std::endl;
 }
