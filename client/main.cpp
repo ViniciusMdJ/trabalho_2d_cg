@@ -13,8 +13,8 @@
 #include "../include/arenaParser.h"
 #include "../include/player.h"
 #include "../include/vector.h"
+#include "../include/utils.h"
 
-#define INC_MOVE 0.0005
 
 using namespace std;
 
@@ -106,10 +106,10 @@ void mouse(int button, int state, int x, int y){
 
     if(button == GLUT_RIGHT_BUTTON){
         if(state == GLUT_DOWN){
-            //pular
+            player->Jump(true, currentTime);
         }
         else if(state == GLUT_UP){
-            //parar de pular
+            player->Jump(false, currentTime);
         }
     }
 }
@@ -142,7 +142,7 @@ void idle(void){
 
 
     direction = direction.normalize() * (INC_MOVE * timeDiference);
-    player->Move(direction);
+    player->Move(direction, currentTime);
 
     glutPostRedisplay();
 }
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
-    parserXmlFile("/mnt/d/UFES/10-periodo/cg/trabalho_2d_cg/arena_teste.svg", arena, player);
+    parserXmlFile("./arena_teste.svg", arena, player);
  
     // Create the window.
     glutInitWindowSize(Width, Height);
