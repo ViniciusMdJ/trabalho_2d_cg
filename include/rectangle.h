@@ -5,6 +5,8 @@
 #include <GL/glu.h>
 #include <bits/stdc++.h>
 
+#include "vector.h"
+
 class Rectangle{
     GLfloat width;
     GLfloat height;
@@ -28,8 +30,9 @@ public:
     );
 
     void Draw();
-    bool Collides(Rectangle &rect);
-    
+    Vector Collides(Rectangle &rect);
+    void getCoordinates(GLfloat &x, GLfloat &y);
+    Vector moveInside(Rectangle &rect);
 };
 
 #endif//RECTANGLE_H

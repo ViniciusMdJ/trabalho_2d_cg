@@ -28,9 +28,62 @@ Rectangle::Rectangle(GLfloat width, GLfloat height, GLfloat x, GLfloat y, GLfloa
     this->B = B;
 }
 
-bool Rectangle::Collides(Rectangle &rect){
-    return (x < rect.x + rect.width &&
-            x + width > rect.x &&
-            y > rect.y - rect.height &&
-            y - height < rect.y);
+Vector Rectangle::Collides(Rectangle &rect){
+    Vector v;
+    GLfloat w, h, multiplierX, multiplierY;
+
+    if(this->x > rect.x){
+        w = rect.width;
+        multiplierX = -1;
+    }
+    else{
+        w = this->width;
+        multiplierX = 1;
+    }
+
+    if(this->y > rect.y){
+        h = this->height;
+        multiplierY = 1;
+    }
+    else{
+        h = rect.height;
+        multiplierY = -1;
+    }
+
+    GLfloat delta_x = std::abs(rect.x - this->x);
+    GLfloat delta_y = std::abs(rect.y - this->y);
+    if(delta_x < w && delta_y < h){
+        if(delta_x < delta_y){
+            v.setComponent(0, (w - delta_x) * multiplierX);
+        }
+        else{
+            v.setComponent(1, (h - delta_y) * multiplierY);
+        }
+        std::cout << "Collided" << std::endl;
+    }
+
+    return v;
+}
+
+void Rectangle::getCoordinates(GLfloat &x, GLfloat &y){
+    x = this->x;
+    y = this->y;
+}
+
+Vector Rectangle::moveInside(Rectangle &rect){
+    Vector v;
+    if(rect.x < this->x ){
+        v.setComponent(0, this->x - rect.x);
+    }
+    else if((rect.x + rect.width) > (this->x + this->width)){
+        v.setComponent(0, (this->x + this->width) - (rect.x + rect.width));
+    }
+
+    if(rect.y > this->y){
+        v.setComponent(1, this->y - rect.y);
+    }
+    else if((rect.y - rect.height) < (this->y - this->height)){
+        v.setComponent(1, (this->y - this->height) - (rect.y - rect.height));
+    }
+    return v;
 }
