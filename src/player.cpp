@@ -123,7 +123,10 @@ Player::Player(GLfloat x, GLfloat y, GLfloat z, GLfloat height){
     this->rightThighAngle = 165.0;
     this->leftShinAngle = -15.0;
     this->rightShinAngle = -15.0;
+    this->isJumping = false;
+    this->incJumpPerMilli = height * 3 / (float)JUMP_TOTAL_TIME;
     std::cout << "x " << x << " y " << y << " height " << height << std::endl;
+    // std::cout << "incJumpPerMilli " << incJumpPerMilli << std::endl;
     // std::cout << "bodyHeight " << bodyHeight << std::endl;
     // std::cout << "headRadius " << headRadius << std::endl;
     // std::cout << bodyHeight << bodyHeight << std::endl;
@@ -136,12 +139,28 @@ void Player::Move(Vector &direction){
 }
 
 void Player::UpdateJump(GLdouble time){
-    if(time > jumpStartTime + JUMP_TOTAL_TIME){
+    if(!isJumping) return;
+
+    time_t deltaTime = std::min(JUMP_TOTAL_TIME, (int)(time - jumpStartTime));
+    GLfloat movement = 0.0;
+
+    if(deltaTime < JUMP_TOTAL_TIME/2){
+        movement += (deltaTime - (lastJumpUpdate - jumpStartTime)) * incJumpPerMilli;
+    }else if(lastJumpUpdate - jumpStartTime < JUMP_TOTAL_TIME/2){
+        movement += (JUMP_TOTAL_TIME/2 - (lastJumpUpdate - jumpStartTime)) * incJumpPerMilli;
+        movement -= (deltaTime - (JUMP_TOTAL_TIME/2)) * incJumpPerMilli;
+    }else{
+        movement -= (deltaTime - (lastJumpUpdate - jumpStartTime)) * incJumpPerMilli;
+    }
+
+    Vector v(0.0, movement, 0.0);
+    Move(v);
+    
+    lastJumpUpdate = time;
+    if(time - jumpStartTime > JUMP_TOTAL_TIME){
         isJumping = false;
         return;
     }
-    if(!isJumping) return;
-
 }
 
 Rectangle Player::getBoundingBox(){
@@ -149,7 +168,7 @@ Rectangle Player::getBoundingBox(){
         bodyWidth,
         height,
         x - bodyWidth/2,
-        y - height/2,
+        y + height/2,
         z,
         1.0,
         1.0,
@@ -164,4 +183,10 @@ void Player::Jump(bool jump, GLdouble time){
     }
     isJumping = jump;
     std::cout << "pulo " << jump << " " << time << std::endl;
+}
+
+void Player::gravityEffect(GLdouble deltaTime){
+    if(isJumping) return;
+    Vector v(0.0, -(INC_MOVE /10.0 * deltaTime), 0.0);
+    Move(v);
 }

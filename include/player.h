@@ -28,6 +28,7 @@ class Player{
     bool isJumping;
     time_t jumpStartTime;
     time_t lastJumpUpdate;
+    GLfloat incJumpPerMilli;
 
     void DrawRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B);
     void DrawCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B);
@@ -45,6 +46,7 @@ public:
     Rectangle getBoundingBox();
     void Jump(bool jump, GLdouble time);
     void UpdateJump(GLdouble time);
+    void gravityEffect(GLdouble deltaTIme);
 };
 
 #endif//PLAYER_H
