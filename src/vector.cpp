@@ -68,3 +68,10 @@ Vector Vector::operator*(double scalar) const {
         components[2] * scalar
     );
 }
+
+Vector Vector::operator+=(const Vector& other) {
+    components[0] += other.components[0];
+    components[1] += other.components[1];
+    components[2] += other.components[2];
+    return *this;
+}
