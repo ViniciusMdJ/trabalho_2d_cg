@@ -139,11 +139,20 @@ void idle(void){
     if(keyStatus[(int)('d')]){
         direction.setComponent(0, direction.getComponent(0) + 1);
     }
+    if(keyStatus[(int)('w')]){
+        direction.setComponent(1, direction.getComponent(1) + 1);
+    }
+    if(keyStatus[(int)('s')]){
+        direction.setComponent(1, direction.getComponent(1) - 1);
+    }
 
 
     direction = direction.normalize() * (INC_MOVE * timeDiference);
     player->Move(direction);
+    // player->gravityEffect(timeDiference);
     player->UpdateJump(currentTime);
+
+    arena->verifyCollision(*player);
 
     glutPostRedisplay();
 }
