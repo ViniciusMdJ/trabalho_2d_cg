@@ -22,3 +22,20 @@ void Arena::Draw(){
         i.Draw();
     }
 }
+
+void Arena::verifyCollision(Player &player){
+    Rectangle rect = player.getBoundingBox();
+
+    Vector move = backgroud->moveInside(rect);
+    player.Move(move);
+
+    Vector v;
+    // for(auto i : obstacles){
+    //     v += i.Collides(rect);
+    // }
+
+    v = obstacles[13].Collides(rect);
+
+    // std::cout << v.getComponent(0) << " " << v.getComponent(1) << std::endl;
+    player.Move(v); 
+}

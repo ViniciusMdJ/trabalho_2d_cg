@@ -6,6 +6,7 @@
 #include <bits/stdc++.h>
 
 #include "rectangle.h"
+#include "player.h"
 
 class Arena{
     Rectangle* backgroud;
@@ -15,6 +16,7 @@ public:
     Arena(GLfloat width, GLfloat height, GLfloat x, GLfloat y);
     void addObstacles(Rectangle rect);
     void Draw();
+    void verifyCollision(Player &player);
 };
 
 #endif//ARENA_H
