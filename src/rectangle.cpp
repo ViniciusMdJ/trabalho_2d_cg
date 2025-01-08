@@ -43,21 +43,23 @@ Vector Rectangle::Collides(Rectangle &rect){
 
     if(this->y > rect.y){
         h = this->height;
-        multiplierY = 1;
+        multiplierY = -1;
     }
     else{
         h = rect.height;
-        multiplierY = -1;
+        multiplierY = 1;
     }
 
     GLfloat delta_x = std::abs(rect.x - this->x);
     GLfloat delta_y = std::abs(rect.y - this->y);
+    GLfloat intersection_x = w - delta_x;
+    GLfloat intersection_y = h - delta_y;
     if(delta_x < w && delta_y < h){
-        if(delta_x < delta_y){
-            v.setComponent(0, (w - delta_x) * multiplierX);
+        if(intersection_x < intersection_y){
+            v.setComponent(0, intersection_x * multiplierX);
         }
         else{
-            v.setComponent(1, (h - delta_y) * multiplierY);
+            v.setComponent(1, intersection_y * multiplierY);
         }
         std::cout << "Collided" << std::endl;
     }
