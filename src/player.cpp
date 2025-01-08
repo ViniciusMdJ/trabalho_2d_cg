@@ -73,17 +73,17 @@ void Player::DrawLegs(GLfloat x, GLfloat y, GLfloat z){
         glTranslatef(x, y, z);
         glPushMatrix();
             glRotatef(leftThighAngle, 0.0, 0.0, 1.0);
-            DrawRect(legsHeight, legsWidth, 1.0, 1.0, 0.0);
+            DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
             glTranslatef(0.0, legsHeight, 0.0);
             glRotatef(leftShinAngle, 0.0, 0.0, 1.0);
-            DrawRect(legsHeight, legsWidth, 1.0, 1.0, 0.0);
+            DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
         glPopMatrix();
 
         glRotatef(rightThighAngle, 0.0, 0.0, 1.0);
-        DrawRect(legsHeight, legsWidth, 1.0, 1.0, 0.0);
+        DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
         glTranslatef(0.0, legsHeight, 0.0);
         glRotatef(rightShinAngle, 0.0, 0.0, 1.0);
-        DrawRect(legsHeight, legsWidth, 1.0, 1.0, 0.0);
+        DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
 
     glPopMatrix();
 }
