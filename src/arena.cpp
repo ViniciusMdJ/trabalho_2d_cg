@@ -30,11 +30,9 @@ void Arena::verifyCollision(Player &player){
     player.Move(move);
 
     Vector v;
-    // for(auto i : obstacles){
-    //     v += i.Collides(rect);
-    // }
-
-    v = obstacles[13].Collides(rect);
+    for(auto i : obstacles){
+        v += i.Collides(rect);
+    }
 
     // std::cout << v.getComponent(0) << " " << v.getComponent(1) << std::endl;
     player.Move(v); 
