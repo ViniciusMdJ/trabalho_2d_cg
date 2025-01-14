@@ -95,13 +95,13 @@ void mouse(int button, int state, int x, int y){
     //Atualiza o tempo do ultimo frame ocorrido
     previousTime = currentTime;
 
-    printf("button %d - state %d - x %d - y %d\n", button, state, x, y);
+    // printf("button %d - state %d - x %d - y %d\n", button, state, x, y);
 
-    x = x - Width/2;
-    y = Height/2 - y;
+    // x = x - Width/2;
+    // y = Height/2 - y;
 
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        //atirar
+        arena->addBullet(player->shoot());
     }
 
     if(button == GLUT_RIGHT_BUTTON){
@@ -116,8 +116,13 @@ void mouse(int button, int state, int x, int y){
 
 void motionMouse(int x, int y){
     // ajustar o braço do player
-    x = x - Width/2;
-    y = Height/2 - y;
+    GLfloat relative_x = (x - Width/2) / (float)Width;
+    GLfloat relative_y = (Height/2 - y) / (float)Height;
+
+    GLfloat playerX, playerY;
+    player->getCordinates(playerX, playerY);
+
+    player->setArmAngle(relative_x + playerX, relative_y);
 }
 
 void idle(void){
@@ -139,20 +144,18 @@ void idle(void){
     if(keyStatus[(int)('d')]){
         direction.setComponent(0, direction.getComponent(0) + 1);
     }
-    if(keyStatus[(int)('w')]){
-        direction.setComponent(1, direction.getComponent(1) + 1);
-    }
-    if(keyStatus[(int)('s')]){
-        direction.setComponent(1, direction.getComponent(1) - 1);
-    }
+    // if(keyStatus[(int)('w')]){
+    //     direction.setComponent(1, direction.getComponent(1) + 1);
+    // }
+    // if(keyStatus[(int)('s')]){
+    //     direction.setComponent(1, direction.getComponent(1) - 1);
+    // }
 
 
     direction = direction.normalize() * (INC_MOVE * timeDiference);
-    player->Move(direction);
-    // player->gravityEffect(timeDiference);
-    player->UpdateJump(currentTime);
+    player->updatePlayer(direction, currentTime, timeDiference);
 
-    arena->verifyCollision(*player);
+    arena->updateArena(*player, timeDiference);
 
     glutPostRedisplay();
 }
