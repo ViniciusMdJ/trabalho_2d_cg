@@ -45,6 +45,10 @@ Vector Vector::normalize() const {
     return Vector(components[0] / mag, components[1] / mag, components[2] / mag);
 }
 
+double Vector::getAngleXY() const{
+    return atan2(components[1], components[0]) * 180 / M_PI;
+}
+
 Vector Vector::operator+(const Vector& other) const {
     return Vector(
         components[0] + other.components[0],
@@ -67,6 +71,10 @@ Vector Vector::operator*(double scalar) const {
         components[1] * scalar,
         components[2] * scalar
     );
+}
+
+double Vector::operator*(const Vector& other) const {
+    return components[0] * other.components[0] + components[1] * other.components[1] + components[2] * other.components[2];
 }
 
 Vector Vector::operator+=(const Vector& other) {
