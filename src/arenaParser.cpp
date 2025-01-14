@@ -89,6 +89,15 @@ void parserXmlFile(const char* path, Arena* &arena, Player* &player){
                 circleElement->FloatAttribute("r")*2/bgHeight
             );
         }
-        // else enemies.push_back(circleElement);
+        else {
+            arena->addEnemy(
+                Player(
+                    (circleElement->FloatAttribute("cx") + diffCenterX)/bgHeight,
+                    (-circleElement->FloatAttribute("cy") + diffCenterY)/bgHeight,
+                    2,
+                    circleElement->FloatAttribute("r")*2/bgHeight
+                )
+            );
+        }
     }
 }
