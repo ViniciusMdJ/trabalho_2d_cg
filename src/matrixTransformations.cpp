@@ -16,6 +16,7 @@ namespace MatrixTransformations
     }
 
     void mtRotatef(float angle, float x, float y, float z){
+        angle = angle * M_PI / 180.0;
         float c = cos(angle);
         float s = sin(angle);
         float t = 1 - c;
