@@ -29,10 +29,11 @@ public:
         GLfloat B
     );
 
-    void Draw();
-    Vector Collides(Rectangle &rect);
-    void getCoordinates(GLfloat &x, GLfloat &y);
-    Vector moveInside(Rectangle &rect);
+    void Draw() const ;
+    Vector Collides(Rectangle &rect) const ;
+    void getCoordinates(GLfloat &x, GLfloat &y) const ;
+    void getDimensions(GLfloat &width, GLfloat &height) const ;
+    Vector moveInside(Rectangle &rect) const ;
 };
 
 #endif//RECTANGLE_H

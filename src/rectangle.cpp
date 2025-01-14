@@ -1,18 +1,12 @@
 #include "../include/rectangle.h"
+#include "../include/utils.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-void Rectangle::Draw(){
-    glColor3f(R, G, B);
-
+void Rectangle::Draw() const { 
     glPushMatrix();
         glTranslatef(x, y, 0);
-        glBegin(GL_QUADS);
-            glVertex3f(0, 0, z);
-            glVertex3f(0, -height, z);
-            glVertex3f(width, -height, z);
-            glVertex3f(width, 0, z);
-        glEnd();
+        DrawRectTopLeft(height, width, R, G, B);
     glPopMatrix();
 }
 
@@ -28,7 +22,7 @@ Rectangle::Rectangle(GLfloat width, GLfloat height, GLfloat x, GLfloat y, GLfloa
     this->B = B;
 }
 
-Vector Rectangle::Collides(Rectangle &rect){
+Vector Rectangle::Collides(Rectangle &rect) const {
     Vector v;
     GLfloat w, h, multiplierX, multiplierY;
 
@@ -67,12 +61,17 @@ Vector Rectangle::Collides(Rectangle &rect){
     return v;
 }
 
-void Rectangle::getCoordinates(GLfloat &x, GLfloat &y){
+void Rectangle::getCoordinates(GLfloat &x, GLfloat &y) const {
     x = this->x;
     y = this->y;
 }
 
-Vector Rectangle::moveInside(Rectangle &rect){
+void Rectangle::getDimensions(GLfloat &width, GLfloat &height) const {
+    width = this->width;
+    height = this->height;
+}
+
+Vector Rectangle::moveInside(Rectangle &rect) const {
     Vector v;
     if(rect.x < this->x ){
         v.setComponent(0, this->x - rect.x);
