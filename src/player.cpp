@@ -6,37 +6,31 @@
 #include "../include/player.h"
 #include "../include/vector.h"
 #include "../include/utils.h"
+#include "../include/matrixTranformations.h"
 
 #define BODY_WIDTH 0.04
-#define JUMP_TOTAL_TIME 2000
+#define JUMP_TOTAL_TIME 4000
 
-void Player::DrawRect(GLfloat height, GLfloat width, GLfloat R, GLfloat G, GLfloat B)
-{
-    glColor3f(R, G, B);
+#define THIGH_MIN_ANGLE 160.0f
+#define THIGH_MAX_ANGLE 200.0f
+#define SHIN_MIN_ANGLE 0.0f
+#define SHIN_MAX_ANGLE 90.0f
 
-    glBegin(GL_QUADS);
-      glVertex3f(-width/2, 0, z);
-      glVertex3f(width/2, 0, z);
-      glVertex3f(width/2, height, z);
-      glVertex3f(-width/2, height, z);
-    glEnd();
-}
+#define THIGH_ANGLE_INC (THIGH_MAX_ANGLE - THIGH_MIN_ANGLE) / 800.0
+#define SHIN_ANGLE_INC (SHIN_MAX_ANGLE - SHIN_MIN_ANGLE) / 800.0
 
-void Player::DrawCirc(GLfloat radius, GLfloat R, GLfloat G, GLfloat B)
-{
-    glColor3f(R, G, B);
-    glBegin(GL_POLYGON);
-        for (int i = 0; i < 60; i++)
-        {
-            float theta = (float)i * M_PI / 30.0;
-            glVertex3f(radius * cos(theta), radius * sin(theta), z);
-        }
-    glEnd();
-}
+#define LEFT_WALK 0
+#define RIGHT_WALK 1
+#define STOP_WALK 2
+
+const Vector vectorLimitUpRight = Vector(1.0, 1.0, 0.0).normalize();
+const Vector vectorLimitUpLeft = Vector(-1.0, 1.0, 0.0).normalize();
+const Vector vectorLimitDownRight = Vector(1.0, -1.0, 0.0).normalize();
+const Vector vectorLimitDownLeft = Vector(-1.0, -1.0, 0.0).normalize();
 
 void Player::Draw(){
     glPushMatrix();
-        DrawCollisionBox();
+        // DrawCollisionBox();
         glTranslatef(this->x, this->y - this->headRadius, 0.0);
         DrawBody(0.0, 0.0, 0.0);
         DrawHead(0.0, bodyHeight + headRadius, 0.0);
@@ -49,7 +43,7 @@ void Player::Draw(){
 void Player::DrawBody(GLfloat x, GLfloat y, GLfloat z){
     glPushMatrix();
         glTranslatef(x, y, z);
-        DrawRect(bodyHeight, bodyWidth, 0.0, 1.0, 0.0);
+        DrawRectBaseCenter(bodyHeight, bodyWidth, 0.0, 1.0, 0.0);
     glPopMatrix();
 }
 
@@ -61,29 +55,31 @@ void Player::DrawHead(GLfloat x, GLfloat y, GLfloat z){
 }
 
 void Player::DrawArm(GLfloat x, GLfloat y, GLfloat z){
+    double angle = armAngle.getAngleXY() - 90.0;
     glPushMatrix();
         glTranslatef(x, y, z);
-        glRotatef(armAngle, 0.0, 0.0, 1.0);
-        DrawRect(armHeight, armWidth, 1.0, 1.0, 0.0);
+        glRotatef(angle, 0.0, 0.0, 1.0);
+        DrawRectBaseCenter(armHeight, armWidth, 1.0, 1.0, 0.0);
     glPopMatrix();
 }
 
 void Player::DrawLegs(GLfloat x, GLfloat y, GLfloat z){
     glPushMatrix();
         glTranslatef(x, y, z);
+        glRotatef(rotationAngleOfLegs, 0.0, 1.0, 0.0);
         glPushMatrix();
             glRotatef(leftThighAngle, 0.0, 0.0, 1.0);
-            DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
+            DrawRectBaseCenter(legsHeight, legsWidth, 1.0, 0.0, 0.0);
             glTranslatef(0.0, legsHeight, 0.0);
             glRotatef(leftShinAngle, 0.0, 0.0, 1.0);
-            DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
+            DrawRectBaseCenter(legsHeight, legsWidth, 1.0, 0.0, 0.0);
         glPopMatrix();
 
         glRotatef(rightThighAngle, 0.0, 0.0, 1.0);
-        DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
+        DrawRectBaseCenter(legsHeight, legsWidth, 1.0, 0.0, 0.0);
         glTranslatef(0.0, legsHeight, 0.0);
         glRotatef(rightShinAngle, 0.0, 0.0, 1.0);
-        DrawRect(legsHeight, legsWidth, 1.0, 0.0, 0.0);
+        DrawRectBaseCenter(legsHeight, legsWidth, 1.0, 0.0, 0.0);
 
     glPopMatrix();
 }
@@ -114,18 +110,25 @@ Player::Player(GLfloat x, GLfloat y, GLfloat z, GLfloat height){
     this->bodyHeight = height/5*2;
     this->bodyWidth = height/5;
     this->headRadius = height/10;
+
     this->armHeight = height/4;
     this->armWidth = height/20;
-    this->armAngle = -90.0;
+    this->armAngle = Vector(1.0, 0.0, 0.0);
+
+    this->walkDirection = STOP_WALK;
     this->legsHeight = height/5;
-    this->legsWidth = height/20;    
-    this->leftThighAngle = 195.0;
-    this->rightThighAngle = 165.0;
-    this->leftShinAngle = -15.0;
-    this->rightShinAngle = -15.0;
+    this->legsWidth = height/20;
+    this->leftThighAngle = 180.0;
+    this->leftShinAngle = 0;
+    this->leftLegDirection = 1.0;
+    this->rightThighAngle = 180.0;
+    this->rightShinAngle = 0;
+    this->rightLegDirection = -1.0;
+
     this->isJumping = false;
-    this->incJumpPerMilli = height * 3 / (float)JUMP_TOTAL_TIME;
-    std::cout << "x " << x << " y " << y << " height " << height << std::endl;
+    this->incJumpPerMilli = (height * 6) / (float)JUMP_TOTAL_TIME;
+    this->rotationAngleOfLegs = 0.0;
+    // std::cout << "x " << x << " y " << y << " height " << height << std::endl;
     // std::cout << "incJumpPerMilli " << incJumpPerMilli << std::endl;
     // std::cout << "bodyHeight " << bodyHeight << std::endl;
     // std::cout << "headRadius " << headRadius << std::endl;
@@ -187,6 +190,83 @@ void Player::Jump(bool jump, GLdouble time){
 
 void Player::gravityEffect(GLdouble deltaTime){
     if(isJumping) return;
-    Vector v(0.0, -(INC_MOVE /10.0 * deltaTime), 0.0);
+    Vector v(0.0, -(incJumpPerMilli * deltaTime), 0.0);
     Move(v);
+}
+
+void Player::setArmAngle(GLfloat x, GLfloat y){
+    Vector newV = Vector(x - this->x, y - this->y, 0.0).normalize();
+
+    double mag = newV.magnitude();
+    if(mag == 0.0) return;
+
+    Vector vUp, vDown;
+    double dotUp, dotDown;
+    
+    double newVAngle = std::abs(newV.getAngleXY());
+    if(newVAngle > 90.0){
+        vUp = vectorLimitUpLeft;
+        vDown = vectorLimitDownLeft;
+    }else{
+        vUp = vectorLimitUpRight;
+        vDown = vectorLimitDownRight;
+    }
+
+    dotUp = newV * vUp;
+    dotDown = newV * vDown;
+
+    if(dotUp >= 0.0 && dotDown >= 0.0){
+        armAngle = newV;
+    }else if(dotUp < dotDown){
+        armAngle = vDown;
+    }else{
+        armAngle = vUp;
+    }
+}
+
+Bullet Player::shoot(){
+    using namespace MatrixTransformations;
+    float myX, myY, myZ;
+    mtPushMatrix();
+        mtTranslatef(this->x, this->y - this->headRadius, 0.0);
+        mtTranslatef(0.0, bodyHeight/2.0, 0.0);
+        mtRotatef(-armAngle.getAngleXY() + 90.0, 0.0, 0.0, 1.0);
+        mtTranslatef(0.0, armHeight, 0.0);
+        mtTransformPoint(myX, myY, myZ);
+    mtPopMatrix();
+    return Bullet(myX, myY, myZ, BULLET_RADIUS, armAngle);
+}
+
+void Player::updateLegs(GLdouble deltaTime){
+    if(walkDirection != STOP_WALK){
+        bool swap;
+        swap = updateAndCheckAngles(leftThighAngle, leftLegDirection, THIGH_ANGLE_INC * deltaTime, THIGH_MIN_ANGLE, THIGH_MAX_ANGLE);
+        swap &= updateAndCheckAngles(leftShinAngle, leftLegDirection, SHIN_ANGLE_INC * deltaTime, SHIN_MIN_ANGLE, SHIN_MAX_ANGLE);
+        if(swap) leftLegDirection *= -1;
+        swap = updateAndCheckAngles(rightThighAngle, rightLegDirection, THIGH_ANGLE_INC * deltaTime, THIGH_MIN_ANGLE, THIGH_MAX_ANGLE);
+        swap &= updateAndCheckAngles(rightShinAngle, rightLegDirection, SHIN_ANGLE_INC * deltaTime, SHIN_MIN_ANGLE, SHIN_MAX_ANGLE);
+        if(swap) rightLegDirection *= -1;
+    }
+
+    // std::cout << "perna esquerda " << leftThighAngle << " " << leftShinAngle << std::endl;
+    // std::cout << "perna direita " << rightThighAngle << " " << rightShinAngle << std::endl;
+}
+
+void Player::updatePlayer(Vector direction, GLdouble time, GLdouble deltaTime){
+    if(direction.getComponent(0) > 0.0){
+        walkDirection = RIGHT_WALK;
+        rotationAngleOfLegs = 180.0;
+    }
+    else if(direction.getComponent(0) < 0.0){
+        walkDirection = LEFT_WALK;
+        rotationAngleOfLegs = 0.0;
+    }
+    else{
+        walkDirection = STOP_WALK;
+    }
+    
+    Move(direction);
+    updateLegs(deltaTime);
+    UpdateJump(time);
+    gravityEffect(deltaTime);
 }
