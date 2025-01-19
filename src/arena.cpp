@@ -7,9 +7,10 @@
 #include "../include/arena.h"
 #include "../include/utils.h"
 
-Arena::Arena(GLfloat width, GLfloat height, GLfloat x, GLfloat y){
+Arena::Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y){
     // std::cout << width << " " << height << " " << x << " " << y << std::endl;
 
+    this->player = player;
     backgroud = new Rectangle(width, height, x, y, 0.0, 0.0, 0.0, 1.0);
 }
 
@@ -22,23 +23,30 @@ void Arena::addEnemy(Player enemy){
 }
 
 void Arena::Draw(){
-    backgroud->Draw();
-    for(auto i : obstacles){
-        i.Draw();
-    }
-    for(auto i : bullets){
-        i.Draw();
-    }
-    for(auto i : enemies){
-        i.Draw();
-    }
+    GLfloat playerX, playerY;
+    player->getCordinates(playerX, playerY);
+
+    glPushMatrix();
+        glTranslatef(-playerX, 0, 0);
+        backgroud->Draw();
+        for(auto i : obstacles){
+            i.Draw();
+        }
+        for(auto i : bullets){
+            i.Draw();
+        }
+        for(auto i : enemies){
+            i.Draw();
+        }
+        player->Draw();
+    glPopMatrix();
 }
 
-void Arena::verifyCollision(Player &player){
-    Rectangle rect = player.getBoundingBox();
+void Arena::verifyCollision(){
+    Rectangle rect = player->getBoundingBox();
 
     Vector move = backgroud->moveInside(rect);
-    player.Move(move);
+    player->Move(move);
 
     Vector v;
     for(auto i : obstacles){
@@ -49,14 +57,14 @@ void Arena::verifyCollision(Player &player){
     }
 
     // std::cout << v.getComponent(0) << " " << v.getComponent(1) << std::endl;
-    player.Move(v); 
+    player->Move(v); 
 }
 
 void Arena::addBullet(Bullet bullet){
     bullets.push_back(bullet);
 }
 
-bool Arena::bulletCheck(const Bullet& value, Player &player){
+bool Arena::bulletCheck(const Bullet& value){
     for(auto i : obstacles){
         if(checkColision(value, i)){
             return true;
@@ -70,15 +78,15 @@ bool Arena::bulletCheck(const Bullet& value, Player &player){
         }
         i++;
     }
-    if(checkColision(value, player.getBoundingBox())){
+    if(checkColision(value, player->getBoundingBox())){
         return true;
     }
     return !checkColision(value, *backgroud);
 }
 
-void Arena::updateEnemies(GLdouble timeDiff, Player &player){
+void Arena::updateEnemies(GLdouble timeDiff){
     GLfloat playerX, playerY;
-    player.getCordinates(playerX, playerY);
+    player->getCordinates(playerX, playerY);
     for(auto &i : enemies){
         i.setArmAngle(playerX, playerY);
         if(rand() / (double)RAND_MAX < CHANCE_TO_SHOOT){
@@ -87,11 +95,27 @@ void Arena::updateEnemies(GLdouble timeDiff, Player &player){
     }
 }
 
-void Arena::updateArena(Player &player, GLdouble timeDiff){
-    updateEnemies(timeDiff, player);
+void Arena::updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime){
+    player->updatePlayer(direction, currentTime, timeDiff);
+    updateEnemies(timeDiff);
     for(auto &i : bullets){
         i.Move(timeDiff * 2 * INC_MOVE);
     }
-    bullets.remove_if([this, &player](const Bullet& value) { return bulletCheck(value, player); });
-    verifyCollision(player);
+    bullets.remove_if([this](const Bullet& value) { return bulletCheck(value); });
+    verifyCollision();
+}
+
+void Arena::playerShoot(){
+    addBullet(player->shoot());
+}
+
+void Arena::playerJump(bool jump, GLdouble currentTime){
+    player->Jump(jump, currentTime);
+}
+
+void Arena::updatePlayerArm(GLfloat x, GLfloat y){
+    GLfloat playerX, playerY;
+    player->getCordinates(playerX, playerY);
+
+    player->setArmAngle(x + playerX, y);
 }

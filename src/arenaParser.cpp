@@ -8,7 +8,7 @@
 #define BACKGROUND_COLOR "blue"
 #define PLAYER_COLOR "green"
 
-void parserXmlFile(const char* path, Arena* &arena, Player* &player){
+void parserXmlFile(const char* path, Arena* &arena){
     FILE * fp;
     fp = fopen(path , "r");
     if (fp == NULL) {
@@ -41,6 +41,7 @@ void parserXmlFile(const char* path, Arena* &arena, Player* &player){
         else obstacles.push_back(rectElement);
     }
 
+
     float bgWidth = background->FloatAttribute("width");
     float bgHeight = background->FloatAttribute("height");
 
@@ -49,7 +50,36 @@ void parserXmlFile(const char* path, Arena* &arena, Player* &player){
 
     // cout << "diff x " << diffCenterX << " diff y " << diffCenterY << endl;
 
+    Player* player = NULL;
+    std::vector<Player> enemies;
+    for (tinyxml2::XMLElement* circleElement = root->FirstChildElement("circle");
+        circleElement != nullptr;
+        circleElement = circleElement->NextSiblingElement("circle")){
+
+        const char* fill = circleElement->Attribute("fill");
+
+        if(strcmp(fill, PLAYER_COLOR) == 0){
+            player = new Player(
+                (circleElement->FloatAttribute("cx") + diffCenterX)/bgHeight,
+                (-circleElement->FloatAttribute("cy") + diffCenterY)/bgHeight,
+                2,
+                circleElement->FloatAttribute("r")*2/bgHeight
+            );
+        }
+        else {
+            enemies.push_back(
+                Player(
+                    (circleElement->FloatAttribute("cx") + diffCenterX)/bgHeight,
+                    (-circleElement->FloatAttribute("cy") + diffCenterY)/bgHeight,
+                    2,
+                    circleElement->FloatAttribute("r")*2/bgHeight
+                )
+            );
+        }
+    }
+
     arena = new Arena(
+        player,
         bgWidth/bgHeight,
         1.0,
         -(bgWidth/bgHeight)/2,
@@ -75,29 +105,7 @@ void parserXmlFile(const char* path, Arena* &arena, Player* &player){
         );
     }
 
-    for (tinyxml2::XMLElement* circleElement = root->FirstChildElement("circle");
-        circleElement != nullptr;
-        circleElement = circleElement->NextSiblingElement("circle")){
-
-        const char* fill = circleElement->Attribute("fill");
-
-        if(strcmp(fill, PLAYER_COLOR) == 0){
-            player = new Player(
-                (circleElement->FloatAttribute("cx") + diffCenterX)/bgHeight,
-                (-circleElement->FloatAttribute("cy") + diffCenterY)/bgHeight,
-                2,
-                circleElement->FloatAttribute("r")*2/bgHeight
-            );
-        }
-        else {
-            arena->addEnemy(
-                Player(
-                    (circleElement->FloatAttribute("cx") + diffCenterX)/bgHeight,
-                    (-circleElement->FloatAttribute("cy") + diffCenterY)/bgHeight,
-                    2,
-                    circleElement->FloatAttribute("r")*2/bgHeight
-                )
-            );
-        }
+    for(auto enemy : enemies){
+        arena->addEnemy(enemy);
     }
 }

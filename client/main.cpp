@@ -29,7 +29,6 @@ int keyStatus[256];
 
 //Componentes do mundo virtual sendo modelado
 Arena* arena;
-Player* player;
 
 Text statusMsg;
 Text restartMsg("Press R to restart");
@@ -41,14 +40,8 @@ void renderScene(void)
 {
     // Clear the screen.
     glClear(GL_COLOR_BUFFER_BIT);
-    GLfloat playerX, playerY;
-    player->getCordinates(playerX, playerY);
-
-    glPushMatrix();
-        glTranslatef(-playerX, 0, 0);
-        arena->Draw();
-        player->Draw();
-    glPopMatrix();
+    
+    arena->Draw();
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
@@ -128,28 +121,24 @@ void mouse(int button, int state, int x, int y){
     // y = Height/2 - y;
 
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        arena->addBullet(player->shoot());
+        arena->playerShoot();
     }
 
     if(button == GLUT_RIGHT_BUTTON){
-        if(state == GLUT_DOWN){
-            player->Jump(true, currentTime);
-        }
-        else if(state == GLUT_UP){
-            player->Jump(false, currentTime);
-        }
+        bool isJumping;
+        if(state == GLUT_DOWN) isJumping = true;
+        else if(state == GLUT_UP) isJumping = false;
+
+        arena->playerJump(isJumping, currentTime);
     }
 }
 
 void motionMouse(int x, int y){
     // ajustar o braço do player
-    GLfloat relative_x = (x - Width/2) / (float)Width;
-    GLfloat relative_y = (Height/2 - y) / (float)Height;
+    GLfloat relativeX = (x - Width/2) / (float)Width;
+    GLfloat relativeY = (Height/2 - y) / (float)Height;
 
-    GLfloat playerX, playerY;
-    player->getCordinates(playerX, playerY);
-
-    player->setArmAngle(relative_x + playerX, relative_y);
+    arena->updatePlayerArm(relativeX, relativeY);
 }
 
 void idle(void){
@@ -180,9 +169,7 @@ void idle(void){
 
 
     direction = direction.normalize() * (INC_MOVE * timeDiference);
-    player->updatePlayer(direction, currentTime, timeDiference);
-
-    arena->updateArena(*player, timeDiference);
+    arena->updateArena(direction, timeDiference, currentTime);
 
     glutPostRedisplay();
 }
@@ -194,7 +181,7 @@ int main(int argc, char *argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
-    parserXmlFile("./arena_teste.svg", arena, player);
+    parserXmlFile("./arena_teste.svg", arena);
  
     // Create the window.
     glutInitWindowSize(Width, Height);

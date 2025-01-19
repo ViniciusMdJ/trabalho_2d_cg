@@ -4,6 +4,6 @@
 #include "../include/arena.h"
 #include "../include/player.h"
 
-void parserXmlFile(const char* path, Arena* &arena, Player* &player);
+void parserXmlFile(const char* path, Arena* &arena);
 
 #endif//ARENA_PARSER_H
