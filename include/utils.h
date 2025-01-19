@@ -5,6 +5,7 @@
 #include "bullet.h"
 
 #define INC_MOVE 0.0005
+#define CHANCE_TO_SHOOT 0.005
 
 typedef void (*func)(void);
 
