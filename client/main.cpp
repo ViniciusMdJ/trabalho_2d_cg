@@ -14,9 +14,12 @@
 #include "../include/player.h"
 #include "../include/vector.h"
 #include "../include/utils.h"
-
+#include "../include/text.h"
+#include "../include/gameStatus.h"
 
 using namespace std;
+
+GameStatus gameStatus = START;
 
 // Window dimensions
 const GLint Width = 850;
@@ -27,6 +30,12 @@ int keyStatus[256];
 //Componentes do mundo virtual sendo modelado
 Arena* arena;
 Player* player;
+
+Text statusMsg;
+Text restartMsg("Press R to restart");
+
+Text gameOver("Game Over");
+Text win("You Win");
 
 void renderScene(void)
 {
@@ -40,6 +49,23 @@ void renderScene(void)
         arena->Draw();
         player->Draw();
     glPopMatrix();
+
+    glutSwapBuffers(); // Desenha the new frame of the game.
+}
+
+void initScreen(void){
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_LINES);
+        glVertex2f(-1, 1);
+        glVertex2f(1, -1);
+        glVertex2f(1, 1);
+        glVertex2f(-1, -1);
+    glEnd();
+
+    //verificar pq não desenha as duas mensagens
+    statusMsg.drawTextCentered(0, 0);
+    restartMsg.drawTextCentered(0, -0.05);
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
@@ -66,6 +92,7 @@ void keyup(unsigned char key, int x, int y)
 
 void init(void)
 {
+    srand(time(NULL));
     ResetKeyStatus();
     // The color the windows will redraw. Its done to erase the previous frame.
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black, no opacity(alpha).
@@ -172,7 +199,7 @@ int main(int argc, char *argv[])
     // Create the window.
     glutInitWindowSize(Width, Height);
     glutInitWindowPosition(150,50);
-    glutCreateWindow("Tranformations 2D");
+    glutCreateWindow("Trabalho 2D Vinicius");
  
     // Define callbacks.
     glutDisplayFunc(renderScene);
