@@ -76,7 +76,19 @@ bool Arena::bulletCheck(const Bullet& value, Player &player){
     return !checkColision(value, *backgroud);
 }
 
+void Arena::updateEnemies(GLdouble timeDiff, Player &player){
+    GLfloat playerX, playerY;
+    player.getCordinates(playerX, playerY);
+    for(auto &i : enemies){
+        i.setArmAngle(playerX, playerY);
+        if(rand() / (double)RAND_MAX < CHANCE_TO_SHOOT){
+            bullets.push_back(i.shoot());
+        }
+    }
+}
+
 void Arena::updateArena(Player &player, GLdouble timeDiff){
+    updateEnemies(timeDiff, player);
     for(auto &i : bullets){
         i.Move(timeDiff * 2 * INC_MOVE);
     }

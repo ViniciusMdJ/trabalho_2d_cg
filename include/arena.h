@@ -23,6 +23,7 @@ public:
     void addBullet(Bullet bullet);
     void addEnemy(Player enemy);
     bool bulletCheck(const Bullet& value, Player &player);
+    void updateEnemies(GLdouble timeDiff, Player &player);
     void updateArena(Player &player, GLdouble timeDiff);
 };
 
