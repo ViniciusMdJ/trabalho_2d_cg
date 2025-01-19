@@ -226,7 +226,7 @@ void Player::setArmAngle(GLfloat x, GLfloat y){
 
 Bullet Player::shoot(){
     using namespace MatrixTransformations;
-    float myX, myY, myZ;
+    float myX = 0, myY = 0, myZ = 0;
     mtPushMatrix();
         mtTranslatef(this->x, this->y - this->headRadius, 0.0);
         mtTranslatef(0.0, bodyHeight/2.0, 0.0);
