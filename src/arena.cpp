@@ -7,6 +7,12 @@
 #include "../include/arena.h"
 #include "../include/utils.h"
 
+Arena::FuncPtrClearBullet Arena::fpClearBullet = &Arena::doNothing;
+
+void Arena::clearBullet(){
+    bullets.clear();
+}
+
 Arena::Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y){
     // std::cout << width << " " << height << " " << x << " " << y << std::endl;
 
@@ -38,6 +44,7 @@ void Arena::addEnemy(Player enemy){
 }
 
 void Arena::Draw(){
+    (this->*fpClearBullet)();
     GLfloat playerX, playerY;
     player->getCordinates(playerX, playerY);
 
@@ -165,4 +172,13 @@ void Arena::updatePlayerArm(GLfloat x, GLfloat y){
     player->getCordinates(playerX, playerY);
 
     player->setArmAngle(x + playerX, y);
+}
+
+void Arena::setClearBullet(bool clear){
+    if(clear){
+        fpClearBullet = &Arena::clearBullet;
+    }
+    else{
+        fpClearBullet = &Arena::doNothing;
+    }
 }

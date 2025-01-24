@@ -17,6 +17,12 @@ class Arena{
     std::list<Bullet> bullets;
     std::list<std::pair<Player, std::tuple<float, float, int>>> enemies;
 
+    void doNothing(){};
+    void clearBullet();
+
+    using FuncPtrClearBullet = void (Arena::*)();
+    static FuncPtrClearBullet fpClearBullet;
+
 public:
     Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y);
     void addObstacles(Rectangle rect);
@@ -31,6 +37,7 @@ public:
     void playerShoot();
     void playerJump(bool jump, GLdouble currentTime);
     void updatePlayerArm(GLfloat x, GLfloat y);
+    static void setClearBullet(bool clear);
 };
 
 #endif//ARENA_H
