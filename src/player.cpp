@@ -28,9 +28,11 @@ const Vector vectorLimitUpLeft = Vector(-1.0, 1.0, 0.0).normalize();
 const Vector vectorLimitDownRight = Vector(1.0, -1.0, 0.0).normalize();
 const Vector vectorLimitDownLeft = Vector(-1.0, -1.0, 0.0).normalize();
 
+Player::FuncPtr Player::fpDrawCollisionBox = &Player::DrawCollisionBox;
+
 void Player::Draw(){
     glPushMatrix();
-        // DrawCollisionBox();
+        (this->*fpDrawCollisionBox)();
         glTranslatef(this->x, this->y - this->headRadius, 0.0);
         DrawBody(0.0, 0.0, 0.0);
         DrawHead(0.0, bodyHeight + headRadius, 0.0);
@@ -269,4 +271,12 @@ void Player::updatePlayer(Vector direction, GLdouble time, GLdouble deltaTime){
     updateLegs(deltaTime);
     UpdateJump(time);
     gravityEffect(deltaTime);
+}
+
+void Player::setDrawCollisionBox(bool draw){
+    if(draw){
+        fpDrawCollisionBox = &Player::DrawCollisionBox;
+    }else{
+        fpDrawCollisionBox = &Player::doNothing;
+    }
 }

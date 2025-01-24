@@ -43,6 +43,10 @@ class Player{
     void UpdateJump(GLdouble time);
     void gravityEffect(GLdouble deltaTIme);
     void updateLegs(GLdouble deltaTime);
+    void doNothing(){};
+
+    using FuncPtr = void (Player::*)();
+    static FuncPtr fpDrawCollisionBox;
 
 public:
     Player(GLfloat x, GLfloat y, GLfloat z, GLfloat height);
@@ -54,6 +58,7 @@ public:
     void setArmAngle(GLfloat x, GLfloat y);
     void updatePlayer(Vector direction, GLdouble time, GLdouble deltaTime);
     Bullet shoot();
+    static void setDrawCollisionBox(bool draw);
 };
 
 #endif//PLAYER_H
