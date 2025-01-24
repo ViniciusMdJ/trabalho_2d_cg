@@ -6,6 +6,7 @@
 
 #define INC_MOVE 0.0005
 #define CHANCE_TO_SHOOT 0.005
+#define mp make_pair
 
 typedef void (*func)(void);
 
