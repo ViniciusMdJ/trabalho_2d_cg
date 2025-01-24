@@ -16,10 +16,25 @@ Arena::Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y
 
 void Arena::addObstacles(Rectangle rect){
     obstacles.push_back(rect);
+    float min, max;
+    rect.getHorizontalLimits(min, max);
+    std::cout << "new obstacle " << min << " " << max << std::endl;
 }
 
 void Arena::addEnemy(Player enemy){
-    enemies.push_back(enemy);
+    float min, max, minUpDistance = 500, upDistance;
+    // seta os limites como os limites do background
+    backgroud->getHorizontalLimits(min, max);
+    
+    for(auto i : obstacles){
+        if(i.isBetweenLimitsAndUp(enemy.getBoundingBox(), upDistance) && std::abs(upDistance) < minUpDistance){
+            minUpDistance = std::abs(upDistance);
+            i.getHorizontalLimits(min, max);            
+        }
+    }
+
+    // std::cout << "new enemy " << min << " " << max << std::endl;
+    enemies.push_back(mp(enemy, std::make_tuple(min, max, 1)));
 }
 
 void Arena::Draw(){
@@ -36,7 +51,7 @@ void Arena::Draw(){
             i.Draw();
         }
         for(auto i : enemies){
-            i.Draw();
+            i.first.Draw();
         }
         player->Draw();
     glPopMatrix();
@@ -51,9 +66,14 @@ void Arena::verifyCollision(){
     Vector v;
     for(auto i : obstacles){
         v += i.Collides(rect);
+        for(auto& j : enemies){
+            Vector move = i.Collides(j.first.getBoundingBox());
+            j.first.Move(move);
+            if(move.getComponent(0) != 0) std::get<2>(j.second) *= -1;
+        }
     }
     for(auto i : enemies){
-        v += i.getBoundingBox().Collides(rect);
+        v += i.first.getBoundingBox().Collides(rect);
     }
 
     // std::cout << v.getComponent(0) << " " << v.getComponent(1) << std::endl;
@@ -72,7 +92,7 @@ bool Arena::bulletCheck(const Bullet& value){
     }
     auto i = enemies.begin();
     while(i != enemies.end()){
-        if(checkColision(value, i->getBoundingBox())){
+        if(checkColision(value, i->first.getBoundingBox())){
             enemies.erase(i);
             return true;
         }
@@ -87,12 +107,39 @@ bool Arena::bulletCheck(const Bullet& value){
 void Arena::updateEnemies(GLdouble timeDiff){
     GLfloat playerX, playerY;
     player->getCordinates(playerX, playerY);
-    for(auto &i : enemies){
-        i.setArmAngle(playerX, playerY);
+    for(auto& i : enemies){
+        moveEnemy(i, timeDiff);
+        i.first.setArmAngle(playerX, playerY);
         if(rand() / (double)RAND_MAX < CHANCE_TO_SHOOT){
-            bullets.push_back(i.shoot());
+            bullets.push_back(i.first.shoot());
         }
     }
+}
+
+void Arena::moveEnemy(std::pair<Player, std::tuple<float, float, int>>& enemy, GLdouble timeDiff){
+    float increment = std::get<2>(enemy.second) * INC_MOVE * timeDiff / 4.0;
+    Vector moveEnemy(increment, 0, 0);
+    enemy.first.Move(moveEnemy);
+
+    float enemyX, enemyY;
+    enemy.first.getCordinates(enemyX, enemyY);
+
+    Vector v;
+    float min = std::get<0>(enemy.second);
+    float max = std::get<1>(enemy.second);
+
+    // std::cout << "before " << min << " " << max << " " << std::get<2>(enemy.second) << std::endl;
+    if(enemyX < min){
+        v = Vector(min - enemyX, 0, 0);
+        std::get<2>(enemy.second) *= -1;
+    }
+    else if(enemyX > max){
+        v = Vector(max - enemyX, 0, 0);
+        std::get<2>(enemy.second) *= -1;
+    }
+
+    // std::cout << "after " << min << " " << max << " " << std::get<2>(enemy.second) << std::endl;
+    enemy.first.Move(v);
 }
 
 void Arena::updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime){

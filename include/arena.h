@@ -15,7 +15,7 @@ class Arena{
     Player* player;
     std::vector<Rectangle> obstacles;
     std::list<Bullet> bullets;
-    std::list<Player> enemies;
+    std::list<std::pair<Player, std::tuple<float, float, int>>> enemies;
 
 public:
     Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y);
@@ -26,6 +26,7 @@ public:
     void addEnemy(Player enemy);
     bool bulletCheck(const Bullet& value);
     void updateEnemies(GLdouble timeDiff);
+    void moveEnemy(std::pair<Player, std::tuple<float, float, int>>& enemy, GLdouble timeDiff);
     void updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime);
     void playerShoot();
     void playerJump(bool jump, GLdouble currentTime);
