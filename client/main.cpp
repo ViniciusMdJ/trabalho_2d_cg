@@ -26,6 +26,8 @@ const GLint Width = 850;
 const GLint Height = 850;
 
 int keyStatus[256];
+bool drawCollisionBox = false;
+bool clearBullet = false;
 
 //Componentes do mundo virtual sendo modelado
 Arena* arena;
@@ -80,6 +82,12 @@ void keyPress(unsigned char key, int x, int y)
 void keyup(unsigned char key, int x, int y)
 {
     keyStatus[(int)(key)] = 0;
+    if(key == 'b'){
+        Player::setDrawCollisionBox(drawCollisionBox = !drawCollisionBox);
+    }
+    if(key == 'c'){
+        Arena::setClearBullet(clearBullet = !clearBullet);
+    }
     glutPostRedisplay();
 }
 
@@ -87,6 +95,8 @@ void init(void)
 {
     srand(time(NULL));
     ResetKeyStatus();
+    Player::setDrawCollisionBox(drawCollisionBox);
+    Arena::setClearBullet(clearBullet);
     // The color the windows will redraw. Its done to erase the previous frame.
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black, no opacity(alpha).
  
