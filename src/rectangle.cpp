@@ -22,7 +22,7 @@ Rectangle::Rectangle(GLfloat width, GLfloat height, GLfloat x, GLfloat y, GLfloa
     this->B = B;
 }
 
-Vector Rectangle::Collides(Rectangle &rect) const {
+Vector Rectangle::Collides(Rectangle rect) const {
     Vector v;
     GLfloat w, h, multiplierX, multiplierY;
 
@@ -87,4 +87,17 @@ Vector Rectangle::moveInside(Rectangle &rect) const {
         v.setComponent(1, (this->y - this->height) - (rect.y - rect.height));
     }
     return v;
+}
+
+bool Rectangle::isBetweenLimitsAndUp(const Rectangle &rect, GLfloat &upDistance) const {
+    bool value = (this->x < rect.x && (this->x + this->width) > (rect.x + rect.width) && (this->y - this->height) < (rect.y - height));
+
+    if(value) upDistance = (rect.y - rect.height) - this->y;
+
+    return value;
+}
+
+void Rectangle::getHorizontalLimits(GLfloat &min, GLfloat &max) const {
+    min = this->x;
+    max = this->x + this->width;
 }

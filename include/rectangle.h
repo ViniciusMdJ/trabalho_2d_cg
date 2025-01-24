@@ -30,10 +30,12 @@ public:
     );
 
     void Draw() const ;
-    Vector Collides(Rectangle &rect) const ;
+    Vector Collides(Rectangle rect) const ;
     void getCoordinates(GLfloat &x, GLfloat &y) const ;
     void getDimensions(GLfloat &width, GLfloat &height) const ;
     Vector moveInside(Rectangle &rect) const ;
+    bool isBetweenLimitsAndUp(const Rectangle &rect, GLfloat &upDistance) const ;
+    void getHorizontalLimits(GLfloat &min, GLfloat &max) const ;
 };
 
 #endif//RECTANGLE_H
