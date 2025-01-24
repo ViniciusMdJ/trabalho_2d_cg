@@ -186,12 +186,18 @@ void idle(void){
 
 int main(int argc, char *argv[])
 {
+    
+    if(argc < 2){
+        cout << "Eh necessario passar o caminho do arquivo xml" << endl;
+        exit(1);
+    }
+
+    parserXmlFile(argv[1], arena);
+
     // Initialize openGL with Double buffer and RGB color without transparency.
     // Its interesting to try GLUT_SINGLE instead of GLUT_DOUBLE.
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-
-    parserXmlFile("./arena_teste.svg", arena);
  
     // Create the window.
     glutInitWindowSize(Width, Height);
