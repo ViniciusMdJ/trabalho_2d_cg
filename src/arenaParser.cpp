@@ -98,7 +98,7 @@ void parserXmlFile(const char* path, Arena* &arena){
                 attributeX,
                 attributeY,
                 1,
-                1.0,
+                0.0,
                 0.0,
                 0.0
             )
