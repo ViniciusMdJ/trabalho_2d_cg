@@ -64,7 +64,6 @@ void Arena::addEnemy(Player enemy){
 }
 
 void Arena::Draw(){
-    (this->*fpClearBullet)();
     GLfloat playerX, playerY;
     player->getCordinates(playerX, playerY);
 
@@ -98,6 +97,7 @@ void Arena::verifyCollision(){
         v += i.Collides(rect);
         for(auto& j : enemies){
             Vector move = i.Collides(j.first.getBoundingBox());
+            move += player->getBoundingBox().Collides(j.first.getBoundingBox());
             j.first.Move(move);
             if(move.getComponent(0) != 0) std::get<2>(j.second) *= -1;
         }
@@ -112,6 +112,7 @@ void Arena::verifyCollision(){
 
 void Arena::addBullet(Bullet bullet){
     bullets.push_back(bullet);
+    (this->*fpClearBullet)();
 }
 
 bool Arena::bulletCheck(const Bullet& value){
@@ -142,7 +143,7 @@ void Arena::updateEnemies(GLdouble timeDiff){
         moveEnemy(i, timeDiff);
         i.first.setArmAngle(playerX, playerY);
         if(rand() / (double)RAND_MAX < CHANCE_TO_SHOOT){
-            bullets.push_back(i.first.shoot());
+            addBullet(i.first.shoot());
         }
     }
 }
