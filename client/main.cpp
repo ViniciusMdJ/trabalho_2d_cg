@@ -1,4 +1,3 @@
-
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -19,11 +18,9 @@
 
 using namespace std;
 
-GameStatus gameStatus = START;
-
 // Window dimensions
-const GLint Width = 850;
-const GLint Height = 850;
+const GLint Width = 500;
+const GLint Height = 500;
 
 int keyStatus[256];
 bool drawCollisionBox = false;
@@ -31,38 +28,101 @@ bool clearBullet = false;
 
 //Componentes do mundo virtual sendo modelado
 Arena* arena;
+Arena* currentArena;
 
 Text statusMsg;
 Text restartMsg("Press R to restart");
 
-Text gameOver("Game Over");
-Text win("You Win");
+Text gameOverMessage("Game Over\nPress R to restart");
+Text winMessage("You Win\nPress R to restart");
+Text initialMessage("Press R to start");
+
+// inicializar com valor diferente de START
+GameStatus gameStatus = GAME_OVER;
+void (*screenDraw)(void);
+GameStatus (*updateGame)(GLdouble timeDiff, GLdouble currentTime);
 
 void renderScene(void)
 {
     // Clear the screen.
     glClear(GL_COLOR_BUFFER_BIT);
     
-    arena->Draw();
+    (*screenDraw)();
 
     glutSwapBuffers(); // Desenha the new frame of the game.
 }
 
-void initScreen(void){
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0, 1.0, 1.0);
-    glBegin(GL_LINES);
-        glVertex2f(-1, 1);
-        glVertex2f(1, -1);
-        glVertex2f(1, 1);
-        glVertex2f(-1, -1);
-    glEnd();
+void drawRunningScreen(void){
+    currentArena->Draw();
+}
+
+void drawMessageScreen(void){
+    // glColor3f(1.0, 1.0, 1.0);
+    // glBegin(GL_LINES);
+    //     glVertex2f(-1, 1);
+    //     glVertex2f(1, -1);
+    //     glVertex2f(1, 1);
+    //     glVertex2f(-1, -1);
+    // glEnd();
 
     //verificar pq não desenha as duas mensagens
     statusMsg.drawTextCentered(0, 0);
-    restartMsg.drawTextCentered(0, -0.05);
+    // restartMsg.drawTextCentered(0, -0.05);
+}
 
-    glutSwapBuffers(); // Desenha the new frame of the game.
+GameStatus dontUpdate(GLdouble timeDiference, GLdouble currentTime){
+    return gameStatus;
+}
+
+GameStatus updateRunning(GLdouble timeDiference, GLdouble currentTime){
+    Vector direction;
+
+    //Treat keyPress
+    if(keyStatus[(int)('a')]){
+        direction.setComponent(0, direction.getComponent(0) - 1);
+    }
+    if(keyStatus[(int)('d')]){
+        direction.setComponent(0, direction.getComponent(0) + 1);
+    }
+    // if(keyStatus[(int)('w')]){
+    //     direction.setComponent(1, direction.getComponent(1) + 1);
+    // }
+    // if(keyStatus[(int)('s')]){
+    //     direction.setComponent(1, direction.getComponent(1) - 1);
+    // }
+
+
+    direction = direction.normalize() * (INC_MOVE * timeDiference);
+    return currentArena->updateArena(direction, timeDiference, currentTime);
+}
+
+void setGameStatus(GameStatus gs){
+    if(gs == gameStatus) return;
+    gameStatus = gs;
+    switch(gs){
+        case GAME_OVER:
+            screenDraw = drawMessageScreen;
+            statusMsg = gameOverMessage;
+            updateGame = dontUpdate;
+            break;
+        case WIN:
+            screenDraw = drawMessageScreen;
+            statusMsg = winMessage;
+            updateGame = dontUpdate;
+            break;
+        case START:
+            screenDraw = drawMessageScreen;
+            statusMsg = initialMessage;
+            updateGame = dontUpdate;
+            break;
+        case RUNNING:
+            screenDraw = drawRunningScreen;
+            currentArena = new Arena(*arena);
+            updateGame = updateRunning;
+            break;
+        default:
+            break;
+    }
 }
 
 void ResetKeyStatus()
@@ -76,18 +136,21 @@ void ResetKeyStatus()
 void keyPress(unsigned char key, int x, int y)
 {
     keyStatus[key] = 1;
-    glutPostRedisplay();
-}
-
-void keyup(unsigned char key, int x, int y)
-{
-    keyStatus[(int)(key)] = 0;
     if(key == 'b'){
         Player::setDrawCollisionBox(drawCollisionBox = !drawCollisionBox);
     }
     if(key == 'c'){
         Arena::setClearBullet(clearBullet = !clearBullet);
     }
+    if(key == 'r' && gameStatus != RUNNING){
+        setGameStatus(RUNNING);
+    }
+    glutPostRedisplay();
+}
+
+void keyup(unsigned char key, int x, int y)
+{
+    keyStatus[(int)(key)] = 0;
     glutPostRedisplay();
 }
 
@@ -97,6 +160,7 @@ void init(void)
     ResetKeyStatus();
     Player::setDrawCollisionBox(drawCollisionBox);
     Arena::setClearBullet(clearBullet);
+    setGameStatus(START);
     // The color the windows will redraw. Its done to erase the previous frame.
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black, no opacity(alpha).
  
@@ -125,13 +189,9 @@ void mouse(int button, int state, int x, int y){
     //Atualiza o tempo do ultimo frame ocorrido
     previousTime = currentTime;
 
-    // printf("button %d - state %d - x %d - y %d\n", button, state, x, y);
-
-    // x = x - Width/2;
-    // y = Height/2 - y;
-
+    if(gameStatus != RUNNING) return;
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        arena->playerShoot();
+        currentArena->playerShoot();
     }
 
     if(button == GLUT_RIGHT_BUTTON){
@@ -139,16 +199,17 @@ void mouse(int button, int state, int x, int y){
         if(state == GLUT_DOWN) isJumping = true;
         else if(state == GLUT_UP) isJumping = false;
 
-        arena->playerJump(isJumping, currentTime);
+        currentArena->playerJump(isJumping, currentTime);
     }
 }
 
 void motionMouse(int x, int y){
+    if(gameStatus != RUNNING) return;
     // ajustar o braço do player
     GLfloat relativeX = (x - Width/2) / (float)Width;
     GLfloat relativeY = (Height/2 - y) / (float)Height;
 
-    arena->updatePlayerArm(relativeX, relativeY);
+    currentArena->updatePlayerArm(relativeX, relativeY);
 }
 
 void idle(void){
@@ -161,25 +222,7 @@ void idle(void){
     //Atualiza o tempo do ultimo frame ocorrido
     previousTime = currentTime;
 
-    Vector direction;
-
-    //Treat keyPress
-    if(keyStatus[(int)('a')]){
-        direction.setComponent(0, direction.getComponent(0) - 1);
-    }
-    if(keyStatus[(int)('d')]){
-        direction.setComponent(0, direction.getComponent(0) + 1);
-    }
-    // if(keyStatus[(int)('w')]){
-    //     direction.setComponent(1, direction.getComponent(1) + 1);
-    // }
-    // if(keyStatus[(int)('s')]){
-    //     direction.setComponent(1, direction.getComponent(1) - 1);
-    // }
-
-
-    direction = direction.normalize() * (INC_MOVE * timeDiference);
-    arena->updateArena(direction, timeDiference, currentTime);
+    setGameStatus((*updateGame)(timeDiference, currentTime));
 
     glutPostRedisplay();
 }
