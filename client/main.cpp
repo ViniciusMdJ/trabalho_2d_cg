@@ -25,6 +25,7 @@ const GLint Height = 500;
 int keyStatus[256];
 bool drawCollisionBox = false;
 bool clearBullet = false;
+bool moveEnemies = true;
 
 //Componentes do mundo virtual sendo modelado
 Arena* arena;
@@ -145,6 +146,9 @@ void keyPress(unsigned char key, int x, int y)
     if(key == 'r' && gameStatus != RUNNING){
         setGameStatus(RUNNING);
     }
+    if(key == 'm'){
+        Arena::setMoveEnemies(moveEnemies = !moveEnemies);
+    }
     glutPostRedisplay();
 }
 
@@ -160,6 +164,7 @@ void init(void)
     ResetKeyStatus();
     Player::setDrawCollisionBox(drawCollisionBox);
     Arena::setClearBullet(clearBullet);
+    Arena::setMoveEnemies(moveEnemies);
     setGameStatus(START);
     // The color the windows will redraw. Its done to erase the previous frame.
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black, no opacity(alpha).

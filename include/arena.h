@@ -18,6 +18,7 @@ class Arena{
     std::list<Bullet> bullets;
     std::list<std::pair<Player, std::tuple<float, float, int>>> enemies;
     GameStatus status;
+    static bool moveEnemies;
 
     void doNothing(){};
     void clearBullet();
@@ -42,6 +43,7 @@ public:
     void playerJump(bool jump, GLdouble currentTime);
     void updatePlayerArm(GLfloat x, GLfloat y);
     static void setClearBullet(bool clear);
+    static void setMoveEnemies(bool move);
 };
 
 #endif//ARENA_H

@@ -8,6 +8,7 @@
 #include "../include/utils.h"
 
 Arena::FuncPtrClearBullet Arena::fpClearBullet = &Arena::doNothing;
+bool Arena::moveEnemies = true;
 
 void Arena::clearBullet(){
     bullets.clear();
@@ -98,6 +99,7 @@ void Arena::verifyCollision(){
         for(auto& j : enemies){
             Vector move = i.Collides(j.first.getBoundingBox());
             move += player->getBoundingBox().Collides(j.first.getBoundingBox());
+            move.setComponent(1, 0);
             j.first.Move(move);
             if(move.getComponent(0) != 0) std::get<2>(j.second) *= -1;
         }
@@ -140,7 +142,7 @@ void Arena::updateEnemies(GLdouble timeDiff){
     GLfloat playerX, playerY;
     player->getCordinates(playerX, playerY);
     for(auto& i : enemies){
-        moveEnemy(i, timeDiff);
+        if(moveEnemies) moveEnemy(i, timeDiff);
         i.first.setArmAngle(playerX, playerY);
         if(rand() / (double)RAND_MAX < CHANCE_TO_SHOOT){
             addBullet(i.first.shoot());
@@ -207,4 +209,8 @@ void Arena::setClearBullet(bool clear){
     else{
         fpClearBullet = &Arena::doNothing;
     }
+}
+
+void Arena::setMoveEnemies(bool move){
+    moveEnemies = move;
 }
