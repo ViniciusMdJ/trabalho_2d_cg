@@ -187,7 +187,6 @@ void Player::Jump(bool jump, GLdouble time){
         lastJumpUpdate = time;
     }
     isJumping = jump;
-    std::cout << "pulo " << jump << " " << time << std::endl;
 }
 
 void Player::gravityEffect(GLdouble deltaTime){

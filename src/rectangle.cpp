@@ -55,7 +55,6 @@ Vector Rectangle::Collides(Rectangle rect) const {
         else{
             v.setComponent(1, intersection_y * multiplierY);
         }
-        std::cout << "Collided" << std::endl;
     }
 
     return v;

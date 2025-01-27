@@ -45,7 +45,6 @@ void Arena::addObstacles(Rectangle rect){
     obstacles.push_back(rect);
     float min, max;
     rect.getHorizontalLimits(min, max);
-    std::cout << "new obstacle " << min << " " << max << std::endl;
 }
 
 void Arena::addEnemy(Player enemy){
