@@ -33,8 +33,8 @@ Arena* currentArena;
 Text statusMsg;
 Text restartMsg("Press R to restart");
 
-Text gameOverMessage("Game Over\nPress R to restart");
-Text winMessage("You Win\nPress R to restart");
+Text gameOverMessage("Game Over Press R to restart");
+Text winMessage("You Win Press R to restart");
 Text initialMessage("Press R to start");
 
 // inicializar com valor diferente de START
