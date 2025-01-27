@@ -9,6 +9,7 @@
 #include "player.h"
 #include "bullet.h"
 #include "vector.h"
+#include "gameStatus.h"
 
 class Arena{
     Rectangle* backgroud;
@@ -16,6 +17,7 @@ class Arena{
     std::vector<Rectangle> obstacles;
     std::list<Bullet> bullets;
     std::list<std::pair<Player, std::tuple<float, float, int>>> enemies;
+    GameStatus status;
 
     void doNothing(){};
     void clearBullet();
@@ -25,6 +27,8 @@ class Arena{
 
 public:
     Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y);
+    Arena(const Arena& arena);
+    ~Arena();
     void addObstacles(Rectangle rect);
     void Draw();
     void verifyCollision();
@@ -33,7 +37,7 @@ public:
     bool bulletCheck(const Bullet& value);
     void updateEnemies(GLdouble timeDiff);
     void moveEnemy(std::pair<Player, std::tuple<float, float, int>>& enemy, GLdouble timeDiff);
-    void updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime);
+    GameStatus updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime);
     void playerShoot();
     void playerJump(bool jump, GLdouble currentTime);
     void updatePlayerArm(GLfloat x, GLfloat y);

@@ -17,7 +17,28 @@ Arena::Arena(Player* player, GLfloat width, GLfloat height, GLfloat x, GLfloat y
     // std::cout << width << " " << height << " " << x << " " << y << std::endl;
 
     this->player = player;
+    this->status = RUNNING;
     backgroud = new Rectangle(width, height, x, y, 0.0, 0.0, 0.0, 1.0);
+}
+
+Arena::Arena(const Arena& arena){
+    this->player = new Player(*arena.player);
+    this->status = arena.status;
+    backgroud = new Rectangle(*arena.backgroud);
+    for(auto i : arena.obstacles){
+        obstacles.push_back(i);
+    }
+    for(auto i : arena.bullets){
+        bullets.push_back(i);
+    }
+    for(auto i : arena.enemies){
+        enemies.push_back(i);
+    }
+}
+
+Arena::~Arena(){
+    delete player;
+    delete backgroud;
 }
 
 void Arena::addObstacles(Rectangle rect){
@@ -68,6 +89,9 @@ void Arena::verifyCollision(){
     Rectangle rect = player->getBoundingBox();
 
     Vector move = backgroud->moveInside(rect);
+    if(move.getComponent(0) < 0){
+        this->status = WIN;
+    }
     player->Move(move);
 
     Vector v;
@@ -106,6 +130,7 @@ bool Arena::bulletCheck(const Bullet& value){
         i++;
     }
     if(checkColision(value, player->getBoundingBox())){
+        this->status = GAME_OVER;
         return true;
     }
     return !checkColision(value, *backgroud);
@@ -149,7 +174,7 @@ void Arena::moveEnemy(std::pair<Player, std::tuple<float, float, int>>& enemy, G
     enemy.first.Move(v);
 }
 
-void Arena::updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime){
+GameStatus Arena::updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTime){
     player->updatePlayer(direction, currentTime, timeDiff);
     updateEnemies(timeDiff);
     for(auto &i : bullets){
@@ -157,6 +182,7 @@ void Arena::updateArena(Vector direction, GLdouble timeDiff, GLdouble currentTim
     }
     bullets.remove_if([this](const Bullet& value) { return bulletCheck(value); });
     verifyCollision();
+    return this->status;
 }
 
 void Arena::playerShoot(){
